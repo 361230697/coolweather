@@ -111,7 +111,7 @@ public class WeatherActivity extends AppCompatActivity {
             public void onRefresh() {
                 requestWeather(mWeatherId);
             }
-        });
+        });//下拉刷新
         navButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -198,7 +198,7 @@ public class WeatherActivity extends AppCompatActivity {
     /**
      * 处理并展示Weather实体类中的数据。
      */
-    private void showWeatherInfo(Weather weather) {
+    private void showWeatherInfo(Weather weather) {//展示天气信息
         String cityName = weather.basic.cityName;
         String updateTime = weather.basic.update.updateTime.split(" ")[1];
         String degree = weather.now.temperature + "℃";
