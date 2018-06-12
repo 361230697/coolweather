@@ -15,10 +15,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.example.hasee.myweather.util.HttpUtil;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener{
 
@@ -26,19 +35,16 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
     private Button login;
     private Button register;
-    private Button register_submit;
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private EditText accountEdit;
     private EditText passwordEdit;
     private CheckBox rememberPass;
-    private EditText register_account;
-    private EditText register_password;
 
-    private String yonghu;
-    private String mima;
-
+    private ImageView bingPicImg;
+//
+    private Fragment leftfragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +53,29 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
+
+
         dbHelper = new MyDatabaseHelper(this, "Users.db", null, 2);
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         accountEdit = (EditText)findViewById(R.id.account);
         passwordEdit = (EditText)findViewById(R.id.passward);
         rememberPass = (CheckBox)findViewById(R.id.remember_pass);
+
+
+        //
+
+
+
+        bingPicImg = (ImageView)findViewById(R.id.bing_pic_img);
+        String bingPic = pref.getString("bing_pic",null);
+        if(bingPic != null){
+            Glide.with(this).load(bingPic).into(bingPicImg);
+        }else{
+            loadBingPic();
+        }
 
 
         boolean isRemember = pref.getBoolean("remember_password",false);
@@ -143,6 +166,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         transaction.commit();
     }
 
+
+
     public void onClick(View v){
         switch (v.getId()){
             case R.id.login:
@@ -161,5 +186,29 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         startActivity(intent);
     }
 
+    private  void loadBingPic(){
+        String requestBingPic = "http://guolin.tech/api/bing_pic";
+        HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String bingPic = response.body().string();
+                SharedPreferences.Editor editor = PreferenceManager .getDefaultSharedPreferences(MainActivity.this).edit();
+                editor.putString("bing_pic",bingPic);
+                editor.apply();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Glide.with(MainActivity.this).load(bingPic).into(bingPicImg);
+                    }
+                });
+
+            }
+        });
+    }
 
 }

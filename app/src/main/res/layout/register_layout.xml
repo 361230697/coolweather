@@ -9,8 +9,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="@android:color/background_light"
-        android:clickable="true">
+
+        android:clickable="true"
+        android:background="@drawable/wall">
 
         <LinearLayout
             android:orientation="horizontal"

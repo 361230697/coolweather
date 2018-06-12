@@ -7,11 +7,20 @@
     tools:context=".MainActivity"
     >
 
+    <ImageView
+        android:id="@+id/bing_pic_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:scaleType="centerCrop"
+       />
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
+
 
         <fragment
             android:id="@+id/left_layout"
@@ -19,7 +28,9 @@
             android:name="com.example.hasee.myweather.Login"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            />
+            >
+
+        </fragment>
 
     </LinearLayout>
 
