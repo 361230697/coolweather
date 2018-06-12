@@ -16,7 +16,7 @@ public class Utility {
     /**
      * 解析和处理服务器返回的省级数据
      */
-    public static boolean handleProvinceResponse(String response) {
+    public static boolean handleProvinceResponse(String response) {//判断是否获取升级数据，成功则装填数据
         if (!TextUtils.isEmpty(response)) {
             try {
                 JSONArray allProvinces = new JSONArray(response);
