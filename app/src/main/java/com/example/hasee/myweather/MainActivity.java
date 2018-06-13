@@ -154,7 +154,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     public void replaceFragmentLeft(Fragment fragment){
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.left_layout,fragment);
+        transaction.replace(R.id.frag,fragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }

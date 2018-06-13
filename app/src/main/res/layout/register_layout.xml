@@ -11,7 +11,7 @@
         android:orientation="vertical"
 
         android:clickable="true"
-        android:background="@drawable/wall">
+        >
 
         <LinearLayout
             android:orientation="horizontal"
