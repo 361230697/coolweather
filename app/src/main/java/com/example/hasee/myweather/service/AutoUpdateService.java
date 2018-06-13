@@ -17,6 +17,7 @@ import com.example.hasee.myweather.weathermain;
 import com.example.hasee.myweather.gson.Weather;
 import com.example.hasee.myweather.util.HttpUtil;
 import com.example.hasee.myweather.util.Utility;
+import com.example.hasee.myweather.personal;
 
 import java.io.IOException;
 
@@ -33,10 +34,24 @@ public class AutoUpdateService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        //
+        SharedPreferences pref1 = getSharedPreferences("data",MODE_PRIVATE);
+        String setmin = pref1.getString("setmin","0");
+        String sethour = pref1.getString("sethour","0");
+        int setmini = Integer.parseInt(setmin);
+        int sethouri = Integer.parseInt(sethour);
+        boolean set_remember = pref1.getBoolean("set_remember",false);
+        int delay = (sethouri*60*60 + setmini*60)*1000;
+        Log.d("MainActivity", "onStartCommand:"+sethouri+setmini+"共延迟"+delay);
+        Log.d("MainActivity", "onStartCommand:");
+
+
         updateWeather();
         updateBingPic();
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
         int anHour = 8 * 60 * 60 * 1000; // 这是8小时的毫秒数
+        if(delay > 59)anHour = delay;
         long triggerAtTime = SystemClock.elapsedRealtime() + anHour;
         Intent i = new Intent(this, AutoUpdateService.class);
         PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
@@ -44,6 +59,7 @@ public class AutoUpdateService extends Service {
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
         return super.onStartCommand(intent, flags, startId);
     }
+
 
     /**
      * 更新天气信息。

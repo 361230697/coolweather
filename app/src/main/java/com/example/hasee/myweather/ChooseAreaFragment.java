@@ -80,6 +80,8 @@ public class ChooseAreaFragment extends Fragment {
      */
     private int currentLevel;
 
+    private Button personal;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -92,6 +94,8 @@ public class ChooseAreaFragment extends Fragment {
         listView = (ListView) view.findViewById(R.id.list_view);
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, dataList);
         listView.setAdapter(adapter);
+
+        personal = (Button)view.findViewById(R.id.pserver);
         return view;
     }
 
@@ -109,12 +113,12 @@ public class ChooseAreaFragment extends Fragment {
                     queryCounties();
                 } else if (currentLevel == LEVEL_COUNTY) {//进入天气详情的活动
                     String weatherId = countyList.get(position).getWeatherId();
-                    if (getActivity() instanceof weathermain) {
+                    if (getActivity() instanceof weathermain) {//instanceof判断对象属于哪个类，如果在刚登陆后情况下点击，进入WeatherActivity
                         Intent intent = new Intent(getActivity(), WeatherActivity.class);
-                        intent.putExtra("weather_id", weatherId);
+                        intent.putExtra("weather_id", weatherId);//保存备用
                         startActivity(intent);
                         getActivity().finish();
-                    } else if (getActivity() instanceof WeatherActivity) {
+                    } else if (getActivity() instanceof WeatherActivity) {//在滑动列表下点击，只会刷新页面
                         WeatherActivity activity = (WeatherActivity) getActivity();
                         activity.drawerLayout.closeDrawers();
                         activity.swipeRefresh.setRefreshing(true);
@@ -133,6 +137,15 @@ public class ChooseAreaFragment extends Fragment {
                 }
             }
         });
+
+        personal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), personal.class);
+                startActivity(intent);
+            }
+        });
+
         queryProvinces();
     }
 

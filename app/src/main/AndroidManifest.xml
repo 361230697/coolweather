@@ -9,7 +9,6 @@
         android:allowBackup="true"
         android:icon="@mipmap/logo"
         android:label="@string/app_name"
-
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
@@ -19,12 +18,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".weathermain"></activity>
-        <activity android:name=".WeatherActivity"></activity>
+        <activity android:name=".weathermain" />
+        <activity android:name=".WeatherActivity" />
+
         <service
             android:name=".service.AutoUpdateService"
             android:enabled="true"
             android:exported="true" />
+
+        <activity android:name=".personal"></activity>
     </application>
 
 </manifest>
