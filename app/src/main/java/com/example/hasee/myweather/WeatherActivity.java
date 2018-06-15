@@ -1,5 +1,7 @@
 package com.example.hasee.myweather;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -10,6 +12,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +29,7 @@ import com.example.hasee.myweather.service.AutoUpdateService;
 import com.example.hasee.myweather.util.*;
 
 
+import java.io.File;
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -66,6 +70,10 @@ public class WeatherActivity extends AppCompatActivity {
 
     private String mWeatherId;
 
+    //
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +101,22 @@ public class WeatherActivity extends AppCompatActivity {
         swipeRefresh.setColorSchemeResources(R.color.colorPrimary);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         navButton = (Button) findViewById(R.id.nav_button);
+
+        //
+        sharedPreferences = getSharedPreferences("prefer", MODE_PRIVATE);
+        editor3 = sharedPreferences.edit();
+        File file = new File("/data/data/com.example.hasee.myweather/shared_prefs/prefer.xml");
+        if(!file.exists()){
+            Log.d("MainActivity","mylog:"+file.exists());
+            editor3.putString("prefer1", "");
+            editor3.putString("prefer2", "");
+            editor3.putString("prefer3", "");
+            editor3.putString("prefer1_name", "");
+            editor3.putString("prefer2_name", "");
+            editor3.putString("prefer3_name", "");
+            editor3.apply();
+        }
+
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString = prefs.getString("weather", null);
         if (weatherString != null) {
@@ -118,6 +142,16 @@ public class WeatherActivity extends AppCompatActivity {
                 drawerLayout.openDrawer(GravityCompat.START);
             }
         });
+
+        //
+        navButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                prefer();
+                return true;
+            }
+        });
+
         String bingPic = prefs.getString("bing_pic", null);
         if (bingPic != null) {
             Glide.with(this).load(bingPic).into(bingPicImg);
@@ -233,6 +267,51 @@ public class WeatherActivity extends AppCompatActivity {
         weatherLayout.setVisibility(View.VISIBLE);
         Intent intent = new Intent(this, AutoUpdateService.class);
         startService(intent);
+    }
+
+    private void prefer()
+    {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(WeatherActivity.this,android.R.style.Theme_Holo_Light_Dialog);
+        //builder.setIcon(R.drawable.ic_launcher);
+        //    指定下拉列表的显示数据
+        final String[] choose = {sharedPreferences.getString("prefer1_name",""),
+                sharedPreferences.getString("prefer2_name",""),
+                sharedPreferences.getString("prefer3_name","")};
+        //    设置一个下拉的列表选择项
+        builder.setItems(choose, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              if(choose[which].equals(sharedPreferences.getString("prefer1_name",""))){
+                  if(choose[which].equals(""))Toast.makeText(WeatherActivity.this,"暂无关注",Toast.LENGTH_SHORT).show();
+                  else {
+                      WeatherActivity.this.drawerLayout.closeDrawers();
+                      WeatherActivity.this.swipeRefresh.setRefreshing(true);
+                      WeatherActivity.this.requestWeather(sharedPreferences.getString("prefer1",""));
+                  }
+              }
+                else if(choose[which].equals(sharedPreferences.getString("prefer2_name",""))){
+                    if(choose[which].equals(""))Toast.makeText(WeatherActivity.this,"暂无关注",Toast.LENGTH_SHORT).show();
+                    else {
+                        WeatherActivity.this.drawerLayout.closeDrawers();
+                        WeatherActivity.this.swipeRefresh.setRefreshing(true);
+                        WeatherActivity.this.requestWeather(sharedPreferences.getString("prefer2",""));
+                    }
+                }
+                else  if(choose[which].equals(sharedPreferences.getString("prefer3_name",""))){
+                  if(choose[which].equals(""))Toast.makeText(WeatherActivity.this,"暂无关注",Toast.LENGTH_SHORT).show();
+                  else {
+                      WeatherActivity.this.drawerLayout.closeDrawers();
+                      WeatherActivity.this.swipeRefresh.setRefreshing(true);
+                      WeatherActivity.this.requestWeather(sharedPreferences.getString("prefer3",""));
+                  }
+              }
+
+
+            }
+        });
+        builder.show();
     }
 
 }

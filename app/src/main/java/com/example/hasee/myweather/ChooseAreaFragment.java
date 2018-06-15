@@ -117,6 +117,9 @@ public class ChooseAreaFragment extends Fragment {
             editor3.putString("prefer1", "");
             editor3.putString("prefer2", "");
             editor3.putString("prefer3", "");
+            editor3.putString("prefer1_name", "");
+            editor3.putString("prefer2_name", "");
+            editor3.putString("prefer3_name", "");
             editor3.apply();
         }
 
@@ -145,7 +148,7 @@ public class ChooseAreaFragment extends Fragment {
                         intent.putExtra("weather_id", weatherId);//传递点击信息
                         startActivity(intent);
                         getActivity().finish();
-                    } else if (getActivity() instanceof WeatherActivity) {//在滑动列表下点击，只会刷新页面
+                    } else if (getActivity() instanceof WeatherActivity) {//在天气活动滑动列表下点击，只会刷新页面
                         WeatherActivity activity = (WeatherActivity) getActivity();
                         activity.drawerLayout.closeDrawers();
                         activity.swipeRefresh.setRefreshing(true);
@@ -162,7 +165,7 @@ public class ChooseAreaFragment extends Fragment {
                 if (currentLevel == LEVEL_COUNTY)
                 {String weatherId = countyList.get(position).getWeatherId();
                 String county = countyList.get(position).getCountyName();
-                guanzhu1(parent,view,position,id,weatherId,county);}
+                guanzhu1(weatherId,county);}
                 return true;
             }
         });
@@ -177,6 +180,7 @@ public class ChooseAreaFragment extends Fragment {
                 }
             }
         });
+
 
         personal.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -338,7 +342,7 @@ public class ChooseAreaFragment extends Fragment {
                 dialogBuilder.show();
     }*/
 
-    private void guanzhu1(AdapterView<?> parent, View view, int position, long id, final String weatherId, final String county)
+    private void guanzhu1(final String weatherId, final String county)
     {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),android.R.style.Theme_Holo_Light_Dialog);
@@ -367,25 +371,31 @@ public class ChooseAreaFragment extends Fragment {
                     else if (!sharedPreferences.getString("prefer1", "").equals("")) {
                         if (!sharedPreferences.getString("prefer2", "").equals("")) {
                             editor3.putString("prefer3", weatherId);
+                            editor3.putString("prefer3_name", county);
                             Toast.makeText(getActivity(), "关注成功", Toast.LENGTH_SHORT).show();
                         } else {
                             editor3.putString("prefer2", weatherId);
+                            editor3.putString("prefer2_name", county);
                             Toast.makeText(getActivity(), "关注成功", Toast.LENGTH_SHORT).show();
                         }
                     } else if(!sharedPreferences.getString("prefer1","").equals(weatherId)){
                         editor3.putString("prefer1", weatherId);
+                        editor3.putString("prefer1_name", county);
                         Toast.makeText(getActivity(), "关注成功", Toast.LENGTH_SHORT).show();
                     }
                     editor3.apply();
                 }else if(choose[which].equals("取消关注")){
                     if(sharedPreferences.getString("prefer1","").equals(weatherId)){
                         editor3.putString("prefer1", "");
+                        editor3.putString("prefer1_name", "");
                     }
                     else if(sharedPreferences.getString("prefer2","").equals(weatherId)){
                         editor3.putString("prefer2", "");
+                        editor3.putString("prefer2_name", "");
                     }
                     else if(sharedPreferences.getString("prefer2","").equals(weatherId)){
                         editor3.putString("prefer3", "");
+                        editor3.putString("prefer3_name", "");
                     }else {
                         Toast.makeText(getActivity(), "您并没有关注~", Toast.LENGTH_SHORT).show();
                     }

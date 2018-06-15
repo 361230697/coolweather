@@ -79,6 +79,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
             editor3.putString("prefer1", "");
             editor3.putString("prefer2", "");
             editor3.putString("prefer3", "");
+            editor3.putString("prefer1_name", "");
+            editor3.putString("prefer2_name", "");
+            editor3.putString("prefer3_name", "");
             editor3.apply();
         }
 
