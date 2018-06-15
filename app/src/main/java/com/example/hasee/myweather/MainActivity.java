@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.hasee.myweather.util.HttpUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     private ImageView bingPicImg;
 //
     private Fragment leftfragment;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
 
         //
+//
+        sharedPreferences = getSharedPreferences("prefer", MODE_PRIVATE);
+        editor3 = sharedPreferences.edit();
+        File file = new File("/data/data/com.example.hasee.myweather/shared_prefs/prefer.xml");
+        Log.d("MainActivity","mylog:"+file.exists());
+        if(!file.exists()){
+            Log.d("MainActivity","mylog:"+file.exists());
+            editor3.putString("prefer1", "");
+            editor3.putString("prefer2", "");
+            editor3.putString("prefer3", "");
+            editor3.apply();
+        }
+
 
 
 

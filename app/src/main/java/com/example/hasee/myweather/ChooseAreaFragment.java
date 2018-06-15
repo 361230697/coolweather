@@ -1,13 +1,18 @@
 package com.example.hasee.myweather;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+//import android.support.v7.app.AlertDialog;
+import android.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -20,6 +25,7 @@ import com.example.hasee.myweather.util.*;
 
 import org.litepal.crud.DataSupport;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +33,8 @@ import java.util.List;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class ChooseAreaFragment extends Fragment {
 
@@ -82,6 +90,9 @@ public class ChooseAreaFragment extends Fragment {
 
     private Button personal;
 
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor3;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -96,6 +107,22 @@ public class ChooseAreaFragment extends Fragment {
         listView.setAdapter(adapter);
 
         personal = (Button)view.findViewById(R.id.pserver);
+
+        //
+        sharedPreferences = getActivity().getSharedPreferences("prefer", MODE_PRIVATE);
+        editor3 = sharedPreferences.edit();
+        File file = new File("/data/data/com.example.hasee.myweather/shared_prefs/prefer.xml");
+        if(!file.exists()){
+            Log.d("MainActivity","mylog:"+file.exists());
+            editor3.putString("prefer1", "");
+            editor3.putString("prefer2", "");
+            editor3.putString("prefer3", "");
+            editor3.apply();
+        }
+
+
+
+
         return view;
     }
 
@@ -115,7 +142,7 @@ public class ChooseAreaFragment extends Fragment {
                     String weatherId = countyList.get(position).getWeatherId();
                     if (getActivity() instanceof weathermain) {//instanceof判断对象属于哪个类，如果在刚登陆后情况下点击，进入WeatherActivity
                         Intent intent = new Intent(getActivity(), WeatherActivity.class);
-                        intent.putExtra("weather_id", weatherId);//保存备用
+                        intent.putExtra("weather_id", weatherId);//传递点击信息
                         startActivity(intent);
                         getActivity().finish();
                     } else if (getActivity() instanceof WeatherActivity) {//在滑动列表下点击，只会刷新页面
@@ -127,6 +154,19 @@ public class ChooseAreaFragment extends Fragment {
                 }
             }
         });
+        //
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                if (currentLevel == LEVEL_COUNTY)
+                {String weatherId = countyList.get(position).getWeatherId();
+                String county = countyList.get(position).getCountyName();
+                guanzhu1(parent,view,position,id,weatherId,county);}
+                return true;
+            }
+        });
+
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -282,6 +322,78 @@ public class ChooseAreaFragment extends Fragment {
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
+    }
+
+    /*private void guanzhu(String guanzhu){
+        android.app.AlertDialog.Builder dialogBuilder = new android.app.AlertDialog.Builder(getContext());
+                dialogBuilder.setTitle("关注功能");
+               // dialogBuilder.setMessage("请选择：");
+                dialogBuilder.setCancelable(false);
+                dialogBuilder.setPositiveButton(guanzhu, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Log.d("Mainactivity","长按");
+                    }
+                });
+                dialogBuilder.show();
+    }*/
+
+    private void guanzhu1(AdapterView<?> parent, View view, int position, long id, final String weatherId, final String county)
+    {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),android.R.style.Theme_Holo_Light_Dialog);
+        //builder.setIcon(R.drawable.ic_launcher);
+        builder.setTitle("关注功能");
+        //    指定下拉列表的显示数据
+        final String[] choose = {"关注", "取消关注", "取消"};
+        //    设置一个下拉的列表选择项
+        builder.setItems(choose, new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.d("MainActivity", "mylog:" + weatherId+county);
+
+
+                if (choose[which].equals("关注")) {
+                    if(sharedPreferences.getString("prefer1", "").equals(weatherId) ||
+                            sharedPreferences.getString("prefer2", "").equals(weatherId) ||
+                            sharedPreferences.getString("prefer3", "").equals(weatherId)){
+                        Toast.makeText(getActivity(), "请勿重复关注", Toast.LENGTH_SHORT).show();
+                    }
+                    else if (!sharedPreferences.getString("prefer1", "").equals("") &&
+                            !sharedPreferences.getString("prefer2", "").equals("") &&
+                            !sharedPreferences.getString("prefer3", "").equals(""))
+                        Toast.makeText(getActivity(), "抱歉，关注已达上限", Toast.LENGTH_SHORT).show();
+                    else if (!sharedPreferences.getString("prefer1", "").equals("")) {
+                        if (!sharedPreferences.getString("prefer2", "").equals("")) {
+                            editor3.putString("prefer3", weatherId);
+                            Toast.makeText(getActivity(), "关注成功", Toast.LENGTH_SHORT).show();
+                        } else {
+                            editor3.putString("prefer2", weatherId);
+                            Toast.makeText(getActivity(), "关注成功", Toast.LENGTH_SHORT).show();
+                        }
+                    } else if(!sharedPreferences.getString("prefer1","").equals(weatherId)){
+                        editor3.putString("prefer1", weatherId);
+                        Toast.makeText(getActivity(), "关注成功", Toast.LENGTH_SHORT).show();
+                    }
+                    editor3.apply();
+                }else if(choose[which].equals("取消关注")){
+                    if(sharedPreferences.getString("prefer1","").equals(weatherId)){
+                        editor3.putString("prefer1", "");
+                    }
+                    else if(sharedPreferences.getString("prefer2","").equals(weatherId)){
+                        editor3.putString("prefer2", "");
+                    }
+                    else if(sharedPreferences.getString("prefer2","").equals(weatherId)){
+                        editor3.putString("prefer3", "");
+                    }else {
+                        Toast.makeText(getActivity(), "您并没有关注~", Toast.LENGTH_SHORT).show();
+                    }
+                    editor3.apply();
+                }
+            }
+        });
+        builder.show();
     }
 
 }
