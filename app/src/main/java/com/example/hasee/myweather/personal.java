@@ -23,6 +23,8 @@ public class personal extends AppCompatActivity {
     private Button myprefer2;
     private Button myprefer3;
 
+    private Button gomap;
+
     private SharedPreferences pref1;
     private SharedPreferences.Editor editor1;
     private CheckBox remember_set;
@@ -142,5 +144,13 @@ public class personal extends AppCompatActivity {
         myprefer2.setText(sharedPreferences.getString("prefer2_name",null));
         myprefer3.setText(sharedPreferences.getString("prefer3_name",null));
 
+        gomap = (Button)findViewById(R.id.gomap);
+        gomap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(personal.this, Map.class);
+                startActivity(intent);
+            }
+        });
     }
 }
