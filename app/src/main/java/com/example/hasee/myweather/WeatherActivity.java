@@ -24,9 +24,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.hasee.myweather.gson.Forecast;
+import com.example.hasee.myweather.gson.Tranweather;
 import com.example.hasee.myweather.gson.Weather;
 import com.example.hasee.myweather.service.AutoUpdateService;
 import com.example.hasee.myweather.util.*;
+
 
 
 import java.io.File;
@@ -74,6 +76,9 @@ public class WeatherActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor3;
 
+    private String cityId;
+    private String cityweatherId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,21 +119,46 @@ public class WeatherActivity extends AppCompatActivity {
             editor3.putString("prefer1_name", "");
             editor3.putString("prefer2_name", "");
             editor3.putString("prefer3_name", "");
+            editor3.putString("location","");
             editor3.apply();
         }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString = prefs.getString("weather", null);
-        if (weatherString != null) {
+
+        cityId = getIntent().getStringExtra("city_Id");
+//        Log.d("WeatherActivity", "666mylog:cityid"+cityId);
+
+
+        if (weatherString != null&&cityId==null) {
             // 有缓存时直接解析天气数据
+            Log.d("MainActivity", "mylog应该是为null: "+cityId);
             Weather weather = Utility.handleWeatherResponse(weatherString);
             mWeatherId = weather.basic.weatherId;
             showWeatherInfo(weather);
+
         } else {
-            // 无缓存时去服务器查询天气
-            mWeatherId = getIntent().getStringExtra("weather_id");
-            weatherLayout.setVisibility(View.INVISIBLE);
-            requestWeather(mWeatherId);
+            if(cityId!=null){
+                //weatherLayout.setVisibility(View.INVISIBLE);
+                //requestWeather1(cityId);
+                Log.d("MainActivity", "mylog应该是长沙: "+cityId);
+                Log.d("MainAcyivity","mylogjson开始");
+                requestWeather1(cityId);
+                Log.d("MainActivity","mylogjson成功");
+
+                cityweatherId = sharedPreferences.getString("location",null);
+                Log.d("MainActivity","这是本地地址"+cityweatherId);
+                weatherLayout.setVisibility(View.INVISIBLE);
+                requestWeather(cityweatherId);
+
+                //weatherLayout.setVisibility(View.INVISIBLE);
+                //requestWeather1(cityId);
+            }else {
+                // 无缓存时去服务器查询天气
+                mWeatherId = getIntent().getStringExtra("weather_id");
+                weatherLayout.setVisibility(View.INVISIBLE);
+                requestWeather(mWeatherId);
+            }
         }
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -194,6 +224,44 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
+                        swipeRefresh.setRefreshing(false);
+                    }
+                });
+            }
+        });
+        loadBingPic();
+    }
+
+    public void requestWeather1(final String cityId) {
+        String weatherUrl = "https://free-api.heweather.com/s6/weather?location=" + cityId + "&key=08228685e5f345d3a701d6912246bfef";//bc0418b57b2d4918819d3974ac1285d9
+        HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String responseText = response.body().string();
+                final Tranweather tranweather = Utility.mtranweather(responseText );
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (tranweather != null && "ok".equals(tranweather.status)) {
+                            Log.d("MainActivity", "mylog:JSON这回成功了！");
+                            Log.d("MainActivity", "mylog:"+tranweather.basic.weatherId+tranweather.basic.cityName);
+                            editor3.putString("location",tranweather.basic.weatherId);
+                            editor3.apply();
+                            Log.d("MainActivity","mylog保存本地"+sharedPreferences.getString("location",null));
+                        }else {
+                            Log.d("MainActivity", "mylog:JSON这回失败了！");
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("获取失败","获取失败");
                         swipeRefresh.setRefreshing(false);
                     }
                 });

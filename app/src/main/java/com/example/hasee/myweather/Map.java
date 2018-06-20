@@ -1,11 +1,13 @@
 package com.example.hasee.myweather;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,9 +38,15 @@ public class Map extends AppCompatActivity {
 
     private boolean isFirstLocate = true;
 
+    public boolean flag;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
         mLocationClient = new LocationClient(getApplicationContext());
         mLocationClient.registerLocationListener(new MyLocationListener());
         SDKInitializer.initialize(getApplicationContext());
@@ -75,6 +83,7 @@ public class Map extends AppCompatActivity {
             baiduMap.animateMapStatus(update);
             isFirstLocate = false;
         }
+
         MyLocationData.Builder locationBuilder = new MyLocationData.
                 Builder();
         locationBuilder.latitude(location.getLatitude());
@@ -156,6 +165,18 @@ public class Map extends AppCompatActivity {
 //                currentPosition.append("网络");
 //            }
 //            positionText.setText(currentPosition);
+//            Log.d("MainActivity", "mylog:城市"+location.getCity());
+//            Log.d("MainActivity", "mylog:经线"+location.getLongitude());
+//            Log.d("MainActivity", "mylog:纬度"+location.getLatitude());
+if(isFirstLocate) {
+    Toast.makeText(Map.this, "城市:" + location.getCity() + "经" + location.getLongitude() + "纬度" + location.getLatitude()
+            , Toast.LENGTH_SHORT).show();
+    Log.d("MainActiviy", "mylog: "+location.getCity());
+    Intent intent = new Intent(Map.this, WeatherActivity.class);
+    intent.putExtra("city_Id", location.getCity());
+    startActivity(intent);
+    isFirstLocate = false;
+}
             if (location.getLocType() == BDLocation.TypeGpsLocation
                     || location.getLocType() == BDLocation.TypeNetWorkLocation) {
                 navigateTo(location);

@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.example.hasee.myweather.data.*;
 
+import com.example.hasee.myweather.gson.Tranweather;
 import com.example.hasee.myweather.gson.Weather;
 import com.google.gson.Gson;
 
@@ -90,6 +91,18 @@ public class Utility {
             JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
             String weatherContent = jsonArray.getJSONObject(0).toString();
             return new Gson().fromJson(weatherContent, Weather.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Tranweather mtranweather(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather6");
+            String weatherContent = jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(weatherContent, Tranweather.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
