@@ -1,17 +1,22 @@
 package com.example.hasee.myweather;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,6 +84,7 @@ public class WeatherActivity extends AppCompatActivity {
     private String cityId;
     private String cityweatherId;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +114,16 @@ public class WeatherActivity extends AppCompatActivity {
         navButton = (Button) findViewById(R.id.nav_button);
 
         //
+        titleCity.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Bitmap bitmap;
+                bitmap = captureScreen(WeatherActivity.this);
+                shareImg("分享","分享","分享",Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, null,null)));
+                return true;
+            }
+        });
+
         sharedPreferences = getSharedPreferences("prefer", MODE_PRIVATE);
         editor3 = sharedPreferences.edit();
         File file = new File("/data/data/com.example.hasee.myweather/shared_prefs/prefer.xml");
@@ -380,6 +396,49 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
         builder.show();
+    }
+
+    //
+    private void shareImg(String dlgTitle, String subject, String content,
+                          Uri uri) {
+//        if (uri == null) {
+//            return;
+//        }
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        if (subject != null && !"".equals(subject)) {
+            intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        }
+        if (content != null && !"".equals(content)) {
+            intent.putExtra(Intent.EXTRA_TEXT, content);
+        }
+
+        // 设置弹出框标题
+        if (dlgTitle != null && !"".equals(dlgTitle)) { // 自定义标题
+            startActivity(Intent.createChooser(intent, dlgTitle));
+        } else { // 系统默认标题
+            startActivity(intent);
+        }
+    }
+
+    public Bitmap convertViewToBitmap(View view) {
+        view.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+        view.setDrawingCacheEnabled(true);
+        view.buildDrawingCache();
+        Bitmap bitmap = view.getDrawingCache();
+        return bitmap;
+    }
+
+    public static Bitmap captureScreen(Activity activity) {
+
+        activity.getWindow().getDecorView().setDrawingCacheEnabled(true);
+
+        Bitmap bmp=activity.getWindow().getDecorView().getDrawingCache();
+
+        return bmp;
+
     }
 
 }
